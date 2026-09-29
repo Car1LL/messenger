@@ -8,7 +8,25 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+        postgres:
+            image: postgres:18
+            env:
+                POSTGRES_USER: messenger
+                POSTGRES_PASSWORD: postgres
+                POSTGRES_DB: messenger_db
+
     steps:
+    #   - name: Create test database
+    #     run:
+    #         PGPASSWORD=postgres psql \
+    #             -h localhost \
+    #             -U messenger \
+    #             -d messenger_db \
+    #             -c "CREATE DATABASE messenger_test_db;" 
+      - name: Check PostgreSQL client
+        run: psql --version
+
       - name: Checkout repository
         uses: actions/checkout@v7
 
