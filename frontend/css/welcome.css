@@ -1,0 +1,459 @@
+/* ====================== Layout ====================== */
+
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 100vh;
+    padding: 1rem;
+
+    background: rgb(var(--background));
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+
+    width: 100%;
+    max-width: 375px;
+    gap: 1rem;
+    padding: 1.75rem;
+
+    border-radius: 24px;
+} 
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* ====================== Main elements ====================== */
+.theme-toggle {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+
+    width: 50px;
+    height: 32px;
+    padding: 3px;
+    
+    border-radius: 999px;
+    border: 2px solid rgb(var(--border));
+
+    background: rgb(var(--button));
+
+    cursor: pointer;
+}
+
+.theme-toggle-knob {
+    display: block;
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    background: rgb(var(--text));
+}
+
+/* ====================== Form elements ====================== */
+
+form h1 {
+    text-align: center;
+    margin-bottom: 1.75rem;
+
+    font-size: 2.5rem;
+
+    color: rgb(var(--text));
+}
+
+.form-group label {
+    font-size: 1.15rem;
+    font-weight: 600;
+
+    color: rgb(var(--text));
+}
+
+.form-group input {
+    padding: 0.75rem 1rem;
+    width: 100%;
+
+    font-size: 1.1rem;
+
+    border-radius: 10px;
+    border: 2px solid transparent;
+    outline: none;
+
+    color: rgb(var(--text));
+    background: rgb(var(--surface-secondary));
+}
+
+form > button {
+    padding: 0.75rem 1rem;
+    margin-top: 1.25rem;
+
+    font-size: 1.15rem;
+    font-weight: 600;
+
+    border-radius: 10px;
+    border: 2px solid transparent;
+
+    background: rgb(var(--button));
+    color: rgb(var(--text));
+} 
+
+form p {
+    text-align: center;
+
+    font-size: 0.95rem;
+
+    color: rgb(var(--text));
+}
+
+form p a {
+    font-weight: 600;
+
+    color: rgb(var(--neon-blue));
+}
+
+/* ====================== Password Hints ====================== */
+.password-hints {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.password-hints.is-visible {
+    grid-template-rows: 1fr;
+}
+
+.password-hints-content {
+    overflow: hidden;
+}
+
+.password-hints-content p {
+    transition:
+        color 0.3s ease,
+        text-shadow 0.3s ease;
+}
+
+.password-hints-content p.valid {
+    color: rgb(70, 190, 100);
+}
+
+.password-hints-content p.invalid {
+    color: rgb(220, 70, 70);
+    text-shadow: 0 0 6px rgba(220, 70, 70, 0.3);
+}
+
+/* ====================== Username hints ====================== */
+.username-hints {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.username-hints.is-visible {
+    grid-template-rows: 1fr;
+}
+
+.username-hints-content {
+    overflow: hidden;
+}
+
+.username-hints-content p {
+    transition:
+        color 0.3s ease,
+        text-shadow 0.3s ease;
+}
+
+.username-hints-content p.valid {
+    color: rgb(70, 190, 100);
+}
+
+.username-hints-content p.invalid {
+    color: rgb(220, 70, 70);
+    text-shadow: 0 0 6px rgba(220, 70, 70, 0.3);
+}
+
+/* ====================== Username availability ====================== */
+#register-username {
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+#register-username:focus {
+    border-color: grey;
+    box-shadow: 0 0 8px rgba(128, 128, 128, 0.3)
+}
+
+#register-username.checking {
+    border-color: grey;
+    animation: username-checking 1.5s ease-in-out infinite;
+}
+
+#register-username.available {
+    border-color: rgb(70, 190, 100);
+}
+
+#register-username.taken {
+    border-color: rgb(220, 70, 70);
+}
+
+@keyframes username-checking {
+    0% {
+        box-shadow: 0 0 4px rgba(128, 128, 128, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 12px rgba(128, 128, 128, 0.6);
+    }
+    100% {
+        box-shadow: 0 0 4px rgba(128, 128, 128, 0.2);
+    }
+}
+
+.username-availability {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease-in;
+}
+
+.username-availability.is-visible {
+    grid-template-rows: 1fr;
+}
+
+.username-availability-content {
+    overflow: hidden;
+}
+
+.username-availability-content p {
+    font-weight: 600;
+    color: rgb(220, 70, 70);
+    text-shadow: 0 0 6px rgba(220, 70, 70, 0.3);
+}
+
+/* ====================== Password Confirmation ====================== */
+
+#register-password.password-match,
+#confirm-register-password.password-match {
+    border-color: rgb(70, 190, 100);
+    box-shadow: 0 0 8px rgba(70, 190, 100, 0.3);
+}
+
+#register-password.password-mismatch,
+#confirm-register-password.password-mismatch {
+    border-color: rgb(220, 70, 70);
+    box-shadow: 0 0 8px rgba(220, 70, 70, 0.3);
+}
+
+/* ====================== Password show (Password-toggle) ====================== */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper > button {
+    position: absolute;
+
+    right: 1rem;
+    transform: translateY(-50%);
+    top: 50%;
+
+    background: transparent;
+    border: none;
+
+    color: rgb(var(--text-secondary));
+}
+
+.password-wrapper > button {
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.password-wrapper > button:hover {
+    color: rgb(var(--text));
+}
+
+.password-wrapper > button:active {
+    transform: translateY(-50%) scale(1.3);
+    color: rgb(var(--neon-purple));
+}
+
+/* .password-wrapper {
+    position: relative;
+}
+
+.password-wrapper > input[type="checkbox"] {
+    display: none;
+}
+
+.password-wrapper > input[type="password"],
+.password-wrapper > input[type="text"] {
+    width: 100%;
+    padding-right: 3rem;
+}
+
+.password-wrapper > label {
+    position: absolute;
+
+    top: 50%;
+    right: 1rem;
+
+    transform: translateY(-50%);
+
+    cursor: pointer;
+    user-select: none;
+} */
+
+/* ====================== State ====================== */
+form[hidden] {
+    display: none;
+}
+
+/* ====================== Animation ====================== */
+
+.form-group input {
+    transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: rgb(var(--neon-blue));
+    box-shadow: 0 0 8px rgb(var(--neon-blue) / 0.25);
+}
+
+form > button {
+    transition:
+        transform 0.3s ease,
+        background 0.3s ease,
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+form > button:hover {
+    transform: scale(1.05);
+    background: rgb(var(--button-hover));
+    border-color: rgb(var(--neon-blue));
+    box-shadow: 0 0 8px rgb(var(--neon-blue) / 0.2);
+}
+
+form > button:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+    border-color: rgb(var(--neon-purple));
+    box-shadow: 0 0 20px rgb(var(--neon-purple) / 0.3);
+    background: rgb(var(--button-active));
+}
+
+form p a {
+    transition:
+        color 0.2s ease,
+        text-shadow 0.2s ease;
+}
+
+form p a:hover {
+    color: rgb(var(--neon-purple));
+    text-shadow: 0 0 8px rgb(var(--neon-purple) / 0.35);
+}
+
+/* ====================== Form border animation ====================== */
+
+@property --neon-angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes neon-rotate {
+    from {
+        --neon-angle: 0deg;
+    }
+    to {
+        --neon-angle: 360deg;
+    }
+}
+
+form {
+    border: 2px solid transparent;
+
+    background:
+        linear-gradient(rgb(var(--surface)), rgb(var(--surface))) padding-box,
+        conic-gradient(
+            from var(--neon-angle),
+            rgb(var(--neon-blue)),
+            rgb(var(--neon-purple)),
+            rgb(var(--neon-pink)),
+            rgb(var(--neon-blue))
+        ) border-box;
+
+    animation: neon-rotate 5s linear infinite;
+}
+
+form {
+    box-shadow:
+        0 0 15px rgb(var(--neon-blue) / 0.20);
+}
+
+/* ====================== Toggle Theme animation ====================== */
+
+.theme-toggle {
+    transition:
+        background 0.3s,
+        border-color 0.3s;
+}
+
+.theme-toggle-knob {
+    transition:
+        transform 0.3s;
+}
+
+[data-theme="light"] .theme-toggle-knob {
+    transform: translateX(18px);
+}
+
+/* ====================== Successful Registration (login message) ====================== */
+.login-message {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.login-message.is-visible {
+    grid-template-rows: 1fr;
+}
+
+.login-message-content {
+    overflow: hidden;
+}
+
+.login-message-content p {
+    color: rgb(var(--text));
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* ====================== Registration Error ====================== */
+.register-message {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.register-message.is-visible {
+    grid-template-rows: 1fr;
+}
+
+.register-message-content {
+    overflow: hidden;
+}
+
+.register-message-content p {
+    color:rgb(220, 70, 70);
+    font-weight: 600;
+}

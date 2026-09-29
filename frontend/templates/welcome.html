@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Messenger
+{% endblock %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="/static/css/welcome.css">
+{% endblock %}
+
+
+{% block content %}
+<main>
+    <button type="button" class="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-toggle-knob"></span>
+    </button>
+    <!-- REGISTER FORM -->
+    <form class="register-form">
+        <div class="register-message">
+            <div class="register-message-content">
+                <p></p>
+            </div>
+        </div>
+        <h1>Sign up</h1>
+        <div class="form-group">
+            <label for="register-email">Email</label>
+            <input type="email" id="register-email" name="email" required placeholder="example@gmail.com">
+        </div>
+        <div class="username-availability">
+            <div class="username-availability-content">
+                <p class="username-availability-status">Username is already taken</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="register-username">Username</label>
+            <input
+                type="text"
+                id="register-username"
+                name="username"
+                minlength="3"
+                maxlength="20"
+                placeholder="@username"
+                pattern="(?=(?:.*[A-Za-z]){3})[A-Za-z0-9_]+"
+                required>
+        </div>
+        <div class="username-hints">
+            <div class="username-hints-content">
+                <p class="username-requirement-length">❌ 3-20 characters</p>
+                <p class="username-requirement-characters">❌ Only letters, digits and underscores</p>
+                <p class="username-requirement-letters">❌ At least 3 letters</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="register-password">Password</label>
+            <div class="password-wrapper">
+                <input
+                    type="password"
+                    id="register-password"
+                    name="password"
+                    minlength="8"
+                    maxlength="32"
+                    pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,32}"
+                    placeholder="Enter password"
+                    required>
+                <button type="button">👁</button>
+                <!-- <input type="checkbox" id="show-register-password">
+                <label for="show-register-password">👁</label> -->
+            </div>
+        </div>
+        <div class="password-hints">
+            <div class="password-hints-content">
+                <p class="requirement-length">❌ 8-32 characters</p>
+                <p class="requirement-uppercase">❌ One uppercase letter</p>
+                <p class="requirement-lowercase">❌ One lowercase letter</p>
+                <p class="requirement-digit">❌ One digit</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="confirm-register-password">Confirm Password</label>
+            <div class="password-wrapper">
+                <input 
+                    type="password"
+                    id="confirm-register-password" 
+                    name="confirm-password"
+                    placeholder="Confirm password"
+                    required>
+                <button type="button">👁</button>
+                <!-- <input type="checkbox" id="show-confirm-register-password">
+                <label for="show-confirm-register-password">👁</label> -->
+            </div>
+        </div>
+        <button type="submit" id="register-button">Sign up</button>
+        <p>
+            Already have an account?
+            <a href="#">Sign in</a>
+        </p>
+    </form>
+    <!-- LOGIN FORM -->
+    <form class="login-form" hidden>
+        <div class="login-message">
+            <div class="login-message-content">
+                <p></p>
+            </div>
+        </div>
+        <h1>Sign in</h1>
+        <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" name="email" required placeholder="example@gmail.com">
+        </div>
+        <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="password-wrapper">
+                <input 
+                    type="password" 
+                    id="login-password" 
+                    name="password"
+                    placeholder="Enter password"
+                    required>
+                <button type="button">👁</button>
+                <!-- <input type="checkbox" id="show-login-password">
+                <label for="show-login-password">👁</label> -->
+            </div>
+        </div>
+        <button type="submit">Sign in</button>
+        <p>
+            Don't have an account yet?
+            <a href="#">Sign up</a>
+        </p>
+    </form>
+</main>
+{% endblock %}
+
+
+{% block scripts %}
+ <script type="module" src="/static/js/welcome/index.js"></script>
+{% endblock %}

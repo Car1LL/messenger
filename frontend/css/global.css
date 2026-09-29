@@ -1,0 +1,102 @@
+:root {
+    /* Backgrounds */
+    --background: 18 18 18;
+    --surface: 36 36 36;
+    --surface-secondary: 45 45 45;
+
+    /* Text */
+    --text: 245 245 245;
+    --text-secondary: 170 170 170;
+
+    /* Neutral */
+    --border: 55 55 55;
+
+    /* Neon */
+    --neon-blue: 0 200 255;
+    --neon-purple: 170 80 255;
+    --neon-pink: 255 70 190;
+
+    /* Interactive */
+    --button: 45 45 45;
+    --button-hover: 55 55 55;
+    --button-active: 65 65 65;
+}
+
+[data-theme="light"] {
+    /* Backgrounds */
+    --background: 198 171 154;
+    --surface: 226 204 189;
+    --surface-secondary: 207 180 163;
+
+    /* Text */
+    --text: 62 50 45;
+    --text-secondary: 122 101 91;
+
+    /* Neon */
+    --neon-blue: 35 175 205;
+    --neon-purple: 155 90 165;
+    --neon-pink: 220 105 95;
+
+    /* Neutral */
+    --border: 194 166 148;
+
+    /* Interactive */
+    --button: 207 180 163;
+    --button-hover: 218 194 179;
+    --button-active: 194 163 144;
+}
+
+test {
+    /* Backgrounds */
+    --background: 250 241 232;
+    --surface: 255 248 241;
+    --surface-secondary: 247 235 225;
+
+    /* Text */
+    --text: 65 54 50;
+    --text-secondary: 135 115 108;
+
+    /* Neon */
+    --neon-blue: 35 105 160;
+    --neon-purple: 75 55 105;
+    --neon-pink: 125 75 85;
+
+    /* Neutral */
+    --border: 225 207 196;
+
+    /* Interactive */
+    --button: 226 190 175;
+    --button-hover: 218 174 158;
+    --button-active: 207 157 145;
+}
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+button,
+input,
+textarea {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
