@@ -6,7 +6,7 @@ if (savedTheme !== null) {
     document.documentElement.dataset.theme = savedTheme;
 }
 
-themeToggle.addEventListener("click", () => {
+dom.themeToggle.addEventListener("click", () => {
     const currentTheme = document.documentElement.dataset.theme;
 
     if (currentTheme === "dark") {
