@@ -8,25 +8,33 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_NAME: messenger_db
+      DATABASE_PORT: 5432
+      DATABASE_HOST: localhost
+      DATABASE_PASS: postgres
+      DATABASE_USER: messenger_user
+
+      TEST_DATABASE_NAME: messenger_test_db
+
+      SECRET_KEY: secret_key
+
     services:
-        postgres:
-            image: postgres:18
-            env:
-                POSTGRES_USER: messenger
-                POSTGRES_PASSWORD: postgres
-                POSTGRES_DB: messenger_db
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: messenger_user
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: messenger_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-    #   - name: Create test database
-    #     run:
-    #         PGPASSWORD=postgres psql \
-    #             -h localhost \
-    #             -U messenger \
-    #             -d messenger_db \
-    #             -c "CREATE DATABASE messenger_test_db;" 
-      - name: Check PostgreSQL client
-        run: psql --version
-
       - name: Checkout repository
         uses: actions/checkout@v7
 
@@ -41,5 +49,17 @@ jobs:
       - name: Install dependencies
         run: uv sync
 
+      - name: Create test database
+        run: |
+          PGPASSWORD="$DATABASE_PASS" psql \
+            -h "$DATABASE_HOST" \
+            -p "$DATABASE_PORT" \
+            -U "$DATABASE_USER" \
+            -d "$DATABASE_NAME" \
+            -c "CREATE DATABASE $TEST_DATABASE_NAME;"
+
+      - name: Run migrations
+        run: ./migrate.sh
+
       - name: Run tests
-        run: uv run pytest  
+        run: uv run pytest
