@@ -9,7 +9,7 @@ if (savedTheme !== null) {
 
 // ======================== Refresh Token auth ========================
 async function refreshAccessToken() {
-    const response = await fetch("/auth/refresh", {
+    const response = await fetch("/auth/refresh/", {
         "method": "POST"
     });
 
