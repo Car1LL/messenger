@@ -59,7 +59,7 @@ jobs:
             -c "CREATE DATABASE $TEST_DATABASE_NAME;"
 
       - name: Run migrations
-        run: ./migrate.sh
+        run: bash ./scripts/migrate.sh
 
       - name: Run tests
         run: uv run pytest
