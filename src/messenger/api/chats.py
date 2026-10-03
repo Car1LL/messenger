@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Request, WebSocket
+from fastapi import APIRouter, Request, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
-from messenger.api.dependencies import get_current_user, get_session
+from messenger.api.dependencies import get_current_user, get_session, get_current_websocket_user
 from messenger.database.models import UserORM, ChatORM, MessageORM
 from fastapi import Depends
 from pathlib import Path
@@ -8,9 +8,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_, case, and_
 from sqlalchemy.orm import aliased
 from messenger.schemas.auth import Username
-from fastapi.exceptions import HTTPException
-
-from messenger.utils.jwt.jwt import decode_access_token
+from fastapi.exceptions import HTTPException, WebSocketException
+from messenger.utils.connection_manager import connection_manager
+from messenger.schemas.websocket_message import WebsocketMessage
+from pydantic import ValidationError
+from starlette import status
 
 
 router = APIRouter()
@@ -185,26 +187,77 @@ async def get_chat_messages(
     ]
 
 
+# Websocket 
 @router.websocket("/chats/ws/")
 async def websocket_handler(
     websocket: WebSocket,
-    session: AsyncSession = Depends(get_session)
+    session: AsyncSession = Depends(get_session),
+    user: UserORM = Depends(get_current_websocket_user)
 ):
-    connections: dict[int, set[WebSocket]] = dict()
     await websocket.accept()
+    await connection_manager.connect(user.id, websocket)
 
+    try:
+        while True:
+            data = await websocket.receive_json()
+            try:
+                # Returns a Pydantic object
+                message = WebsocketMessage.model_validate(data)
+            except ValidationError as e:
+                await websocket.send_json({
+                    "error": "validate_error",
+                    "message": "Invalid message",
+                    "detail": e.errors()
+                })
+                continue
 
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message was: {data}")
-        token = websocket.cookies.get("access_token")
+            chat = await session.scalar(select(ChatORM).where(ChatORM.id == message.chat_id))
 
-        user_id = decode_access_token(token)
-        await websocket.send_text(f"Your user id is: {user_id}")
+            if chat is None:
+                await websocket.send_json({
+                    "error": "chat_not_found",
+                    "message": "Chat is not found"
+                })
+                continue
 
-        connections.setdefault(user_id, set()).add(websocket)
+            if user.id == chat.user_1_id:
+                recipient_id = chat.user_2_id
+            elif user.id == chat.user_2_id:
+                recipient_id = chat.user_1_id
+            else:
+                await websocket.send_json({
+                    "error": "forbidden",
+                    "message": "You are not a member of this chat"
+                })
+                continue
 
-        user = await session.scalar(select(UserORM).where(UserORM.id == user_id))
+            message_orm = MessageORM(
+                sender_id=user.id,
+                chat_id=chat.id,
+                content=message.content
+            )
 
-        
+            session.add(message_orm)
+            await session.commit()
 
+            await websocket.send_json({
+                "type": "message_sent",
+                "message_id": message_orm.id,
+                "chat_id": message_orm.chat_id
+            })
+
+            await connection_manager.send_to_user(
+                recipient_id,
+                message={
+                    "message_id": message_orm.id,
+                    "chat_id": message_orm.chat_id,
+                    "sender_id": message_orm.sender_id,
+                    "content": message_orm.content
+                }
+            )
+
+    except WebSocketDisconnect:
+        pass
+            
+    finally:
+        await connection_manager.disconnect(user.id, websocket)

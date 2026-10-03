@@ -14,8 +14,13 @@ class ConnectionManager:
             if not self.connections[user_id]:
                 self.connections.pop(user_id)
 
-    async def send_to_user(self, user_id: int, message: str):
-        for ws in self.connections[user_id]:
-            await ws.send_text(message)
+    async def send_to_user(self, user_id: int, message: dict):
+        connections = self.connections.get(user_id)
+
+        if not connections:
+            return
+
+        for ws in connections:
+            await ws.send_json(message)
 
 connection_manager = ConnectionManager()

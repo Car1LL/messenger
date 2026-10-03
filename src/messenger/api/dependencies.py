@@ -1,12 +1,13 @@
 from messenger.database.database import async_session
-from fastapi import Depends, Cookie
+from fastapi import Depends, Cookie, WebSocket
 from messenger.utils.jwt.jwt import decode_access_token
 from messenger.utils.jwt.refresh_token import decode_refresh_token
 from messenger.utils.hash_token import get_hash_token
 from messenger.database.models import UserORM, RefreshSessionORM
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from fastapi.exceptions import HTTPException
+from fastapi.exceptions import HTTPException, WebSocketException
+from starlette import status
 import jwt
 from datetime import datetime, timezone
 
@@ -127,3 +128,25 @@ async def get_current_refresh_session(
         )
 
     return existing_refresh_session
+
+# Get current user for websocket endpoint
+async def get_current_websocket_user(
+        websocket: WebSocket,
+        session: AsyncSession = Depends(get_session)
+) -> UserORM:
+    access_token = websocket.cookies.get("access_token")
+
+    if access_token is None:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    
+    try:    
+        user_id = decode_access_token(access_token)
+    except jwt.InvalidTokenError:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
+    user = await session.scalar(select(UserORM).where(UserORM.id == user_id))
+
+    if not user:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+
+    return user

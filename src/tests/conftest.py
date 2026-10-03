@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-from sqlalchemy import delete
+from sqlalchemy import delete, text
 from messenger.database.config import settings
 from messenger.main import app
 from messenger.api.dependencies import get_session
@@ -10,6 +10,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.pool import NullPool
 from faker import Faker
+from fastapi.testclient import TestClient
 
 
 fake = Faker()
@@ -52,16 +53,27 @@ async def get_client():
         yield client
 
 # Clean test database after every test
+# @pytest_asyncio.fixture(autouse=True)
+# async def clean_database():
+
+#     yield
+
+#     async with session_factory() as session:
+#         await session.execute(delete(RefreshSessionORM))
+#         await session.execute(delete(MessageORM))
+#         await session.execute(delete(ChatORM))
+#         await session.execute(delete(UserORM))
+#         await session.commit()
+
 @pytest_asyncio.fixture(autouse=True)
 async def clean_database():
 
     yield
 
     async with session_factory() as session:
-        await session.execute(delete(RefreshSessionORM))
-        await session.execute(delete(MessageORM))
-        await session.execute(delete(ChatORM))
-        await session.execute(delete(UserORM))
+        await session.execute(
+            text("""TRUNCATE TABLE refresh_sessions, messages, chats, users RESTART IDENTITY CASCADE""")
+        )
         await session.commit()
 
 # Create fake user and save in DB for Login test logic
@@ -170,3 +182,13 @@ async def create_test_messages():
         } for message in messages]
 
     return _create_messages
+
+@pytest.fixture
+def websocket_client():
+    with TestClient(app) as client:
+        yield client
+
+@pytest.fixture
+def websocket_client_2():
+    with TestClient(app) as client:
+        yield client
