@@ -34,9 +34,12 @@ services:
       DATABASE_PASS: ${POSTGRES_PASSWORD}
     ports:
       - "8000:8000"
+    volumes:
+      - uploads_data:/app/frontend/uploads
     depends_on:
       migrate:
         condition: service_completed_successfully
 
 volumes:
   postgres_data:
+  uploads_data:

@@ -2,6 +2,10 @@ from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 from sqlalchemy import ForeignKey, String, func, DateTime
 from datetime import date, datetime, timedelta, timezone, time
 
+
+DEFAULT_AVATAR_PATH = "/assets/avatars/default-user.webp"
+
+
 class Base(DeclarativeBase):
     pass
 
@@ -12,6 +16,7 @@ class UserORM(Base):
     username: Mapped[str] = mapped_column(nullable=False, unique=True)
     email: Mapped[str] = mapped_column(nullable=False, unique=True)
     hash_password: Mapped[str] = mapped_column(nullable=False)
+    avatar_path: Mapped[str] = mapped_column(nullable=False, default=DEFAULT_AVATAR_PATH)
 
 class RefreshSessionORM(Base):
     __tablename__ = "refresh_sessions"
