@@ -5,7 +5,7 @@ from messenger.database.models import UserORM, ChatORM, MessageORM
 from fastapi import Depends
 from pathlib import Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, or_, case, and_
+from sqlalchemy import select, or_, case, and_, func
 from sqlalchemy.orm import aliased
 from messenger.schemas.auth import Username
 from fastapi.exceptions import HTTPException, WebSocketException
@@ -32,23 +32,46 @@ async def chats(
         name="chats.html"
     )
 
-# Get chats for current user
+
 @router.get("/api/chats/", status_code=200)
 async def get_user_chats(
     current_user: UserORM = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
-
     user_1 = aliased(UserORM)
     user_2 = aliased(UserORM)
 
+    recipient_username = case((ChatORM.user_1_id == current_user.id, user_2.username),
+                              else_=user_1.username).label("recipient_username")
+
+    recipient_avatar_path = case((ChatORM.user_1_id == current_user.id, user_2.avatar_path),
+                                 else_=user_1.avatar_path).label("recipient_avatar_path")
+
+    latest_message_id = select(MessageORM.id) \
+        .where(MessageORM.chat_id == ChatORM.id) \
+        .order_by(MessageORM.created_at.desc()) \
+        .order_by(MessageORM.id.desc()) \
+        .limit(1) \
+        .correlate(ChatORM) \
+        .scalar_subquery()
+
+    latest_message_at = select(MessageORM.created_at) \
+        .where(MessageORM.id == latest_message_id).scalar_subquery() \
+        .label("latest_message_at")
+
+    latest_message_content = select(MessageORM.content) \
+        .where(MessageORM.id == latest_message_id).scalar_subquery() \
+        .label("latest_message_content")
+    
     query = or_(
         ChatORM.user_1_id == current_user.id,
         ChatORM.user_2_id == current_user.id
     )
 
-    stmt = select(ChatORM.id, case((ChatORM.user_1_id == current_user.id,
-                                   user_2.username), else_=user_1.username).label("username")) \
+    stmt = select(
+        ChatORM.id, recipient_username, recipient_avatar_path,
+        latest_message_at, latest_message_content
+    ) \
         .join(user_1, ChatORM.user_1_id == user_1.id) \
         .join(user_2, ChatORM.user_2_id == user_2.id) \
         .where(query)
@@ -56,12 +79,14 @@ async def get_user_chats(
     result = await session.execute(stmt)
     rows = result.all()
 
-    return [
-        {
-            "chat_id": row.id,
-            "username": row.username
-        } for row in rows
-    ]
+    return [{
+        "chat_id": row.id,
+        "recipient_username": row.recipient_username,
+        "recipient_avatar_path": row.recipient_avatar_path,
+        "latest_message_at": row.latest_message_at,
+        "latest_message_content": row.latest_message_content
+
+    } for row in rows]
 
 # Search for username to initiate a new chat
 @router.get("/api/users/search/", status_code=200)
@@ -92,7 +117,8 @@ async def search_user(
 
     return {
         "user_id": existing_user.id,
-        "username": existing_user.username
+        "username": existing_user.username,
+        "avatar_path": existing_user.avatar_path
     }
 
 # Create a new chat or get the existing chat

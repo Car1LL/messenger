@@ -13,34 +13,27 @@ async function refreshAccessToken() {
         "method": "POST"
     });
 
-    if (response.status === 200) {
-        return response;
-    }
-    if (response.status === 401) {
-        window.location.href = "/welcome/";
-        return;
-    }
-
-    console.log(`Unexpected Error: ${response.status}`);
+    return response;
 }
 
 async function apiFetch(url, options={}) {
     const response = await fetch(url, options);
 
-    if (response.status === 401) {
-        const refreshResponse = await refreshAccessToken();
-        
-        if (refreshResponse.status == 200) {
-            return await fetch(url, options);
-        } else {
-            window.location.href = "/welcome/";
-            return;
-        }
-    }
-
-    if (response.ok) {
+    if (response.status !== 401) {
         return response;
     }
+
+    const refreshResponse = await refreshAccessToken();
+
+    if (refreshResponse.status === 200) {
+        return await fetch(url, options);
+    }
+    if (refreshResponse.status === 401) {
+        window.location.href = "/welcome/";
+        return refreshResponse;
+    }
+
+    return refreshResponse;
 }
 
 export {

@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey, String, func, DateTime
 from datetime import date, datetime, timedelta, timezone, time
 
 
-DEFAULT_AVATAR_PATH = "/assets/avatars/default-user.webp"
+DEFAULT_AVATAR_PATH = "/static/assets/avatars/default-user.webp"
 
 
 class Base(DeclarativeBase):

@@ -40,7 +40,7 @@ async def test_get_user_chat(create_test_users, create_test_chat, get_client, us
 
     assert len(data) == 1
     assert data[0]["chat_id"] == chat["chat_id"]
-    assert data[0]["username"] == users[1 - user_id]["username"]
+    assert data[0]["recipient_username"] == users[1 - user_id]["username"]
 
 # ========================================= User no Chats =========================================
 @pytest.mark.asyncio
@@ -89,7 +89,7 @@ async def test_get_user_multiple_chats(create_test_users, create_test_chat, get_
 
     assert len(data) == 2
 
-    usernames = [item["username"] for item in data]
+    usernames = [item["recipient_username"] for item in data]
 
     assert set(usernames) == {
         users[1]["username"],
@@ -133,7 +133,7 @@ async def test_specific_user_has_own_chats(get_client, create_test_users, create
     assert len(data) == 1
 
     assert data[0]["chat_id"] == chat_1["chat_id"]
-    assert data[0]["username"] == users[1]["username"]
+    assert data[0]["recipient_username"] == users[1]["username"]
 
 # ======================================================================
 # ====================== SEARCH USER (GET) =============================
