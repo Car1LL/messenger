@@ -249,7 +249,7 @@ async def get_me(
         "user_id": current_user.id
     }
 
-# Websocket 
+# WebSocket
 @router.websocket("/chats/ws/")
 async def websocket_handler(
     websocket: WebSocket,
@@ -262,9 +262,11 @@ async def websocket_handler(
     try:
         while True:
             data = await websocket.receive_json()
+
             try:
-                # Returns a Pydantic object
+                # Validate incoming data
                 message = WebsocketMessage.model_validate(data)
+
             except ValidationError as e:
                 await websocket.send_json({
                     "error": "validate_error",
@@ -273,7 +275,10 @@ async def websocket_handler(
                 })
                 continue
 
-            chat = await session.scalar(select(ChatORM).where(ChatORM.id == message.chat_id))
+            # Find chat
+            chat = await session.scalar(
+                select(ChatORM).where(ChatORM.id == message.chat_id)
+            )
 
             if chat is None:
                 await websocket.send_json({
@@ -282,10 +287,13 @@ async def websocket_handler(
                 })
                 continue
 
+            # Check chat membership and determine recipient
             if user.id == chat.user_1_id:
                 recipient_id = chat.user_2_id
+
             elif user.id == chat.user_2_id:
                 recipient_id = chat.user_1_id
+
             else:
                 await websocket.send_json({
                     "error": "forbidden",
@@ -293,6 +301,7 @@ async def websocket_handler(
                 })
                 continue
 
+            # Create message
             message_orm = MessageORM(
                 sender_id=user.id,
                 chat_id=chat.id,
@@ -301,25 +310,29 @@ async def websocket_handler(
 
             session.add(message_orm)
             await session.commit()
+            await session.refresh(message_orm)
 
-            await websocket.send_json({
-                "type": "message_sent",
+            # Prepare message payload
+            message_data = {
+                "type": "message",
                 "message_id": message_orm.id,
-                "chat_id": message_orm.chat_id
-            })
+                "chat_id": message_orm.chat_id,
+                "sender_id": message_orm.sender_id,
+                "content": message_orm.content,
+                "created_at": message_orm.created_at.isoformat()
+            }
 
+            # Send message to sender
+            await websocket.send_json(message_data)
+
+            # Send message to recipient
             await connection_manager.send_to_user(
                 recipient_id,
-                message={
-                    "message_id": message_orm.id,
-                    "chat_id": message_orm.chat_id,
-                    "sender_id": message_orm.sender_id,
-                    "content": message_orm.content
-                }
+                message=message_data
             )
 
     except WebSocketDisconnect:
         pass
-            
+
     finally:
         await connection_manager.disconnect(user.id, websocket)

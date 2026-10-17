@@ -5,6 +5,7 @@ await getCurrentUserId();
 import "./chat-list.js";
 import "./search-username.js";
 import "./chat-navigation.js";
+import "./chat-websocket.js";
 
 
 const response = await apiFetch("/api/chats/");

@@ -232,5 +232,10 @@ async def test_websocket_recipient_offline(create_test_users, create_test_chat, 
         response = websocket.receive_json()
 
     assert response is not None
-    assert response['type'] == "message_sent"
+    assert response["type"] == "message"
+    assert response["chat_id"] == chat["chat_id"]
+    assert response["sender_id"] == user_a["id"]
+    assert response["content"] == "hello"
+    assert "message_id" in response
+    assert "created_at" in response
 

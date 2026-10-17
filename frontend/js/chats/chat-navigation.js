@@ -1,5 +1,6 @@
 import dom from "./dom.js";
 import { apiFetch, currentUserId } from "../global.js";
+import { sendMessage, setMessageHandler } from "./chat-websocket.js";
 
 let oldestMessageId = null;
 let hasMoreMessages = true;
@@ -246,3 +247,43 @@ dom.messagesContainer.addEventListener("scroll", () => {
         loadOlderMessages(activeChatId);
     }
 });
+
+const messageForm = document.querySelector(".message-form");
+const messageInput = document.querySelector(".message-input");
+
+messageForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const content = messageInput.value.trim();
+
+    if (!content || activeChatId === null) {
+        return;
+    }
+
+    const sent = sendMessage(activeChatId, content);
+
+    if (sent) {
+        messageInput.value = "";
+    }
+});
+
+function handleIncomingMessage(message) {
+    if (message.chat_id !== activeChatId) {
+        return;
+    }
+
+    if (loadedMessages.some(
+        (item) => item.message_id === message.message_id
+    )) {
+        return;
+    }
+
+    loadedMessages.push(message);
+
+    renderAllMessages();
+
+    dom.messagesContainer.scrollTop =
+        dom.messagesContainer.scrollHeight;
+}
+
+setMessageHandler(handleIncomingMessage);
