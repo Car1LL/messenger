@@ -36,6 +36,18 @@ async function apiFetch(url, options={}) {
     return refreshResponse;
 }
 
+
+let currentUserId = null;
+
+async function getCurrentUserId() {
+    const response = await apiFetch("/api/users/me/");
+    const user = await response.json();
+
+    currentUserId = user.user_id;
+}
+
 export {
-    apiFetch
+    apiFetch,
+    getCurrentUserId,
+    currentUserId
 };

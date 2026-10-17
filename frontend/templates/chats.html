@@ -11,20 +11,54 @@ Messenger - chats
 {% block content %}
 
 <div class="container">
-    <aside class="sidebar-wrapper">
-        <div class="sidebar">
-            <input id="sidebar-search" type="text" placeholder="Search username">
-            <div class="search-results" hidden>
-        
-            </div>
-            <div class="chat-list">
-                
-            </div>
-        </div>
-    </aside>
-    <main class="main">
+    <header class="app-header">
+        <span class="app-title">Messenger</span>
 
-    </main>
+        <div class="app-actions">
+            <!-- Settings button later -->
+        </div>
+    </header>
+    <div class="workspace">
+        <aside class="sidebar-wrapper">
+            <div class="sidebar">
+                <input id="sidebar-search" type="text" placeholder="Search username">
+                <div class="search-results" hidden>
+            
+                </div>
+                <div class="chat-list">
+                    
+                </div>
+            </div>
+        </aside>
+        <main class="main">
+            <div class="chat-placeholder">
+                Select a chat to start messaging
+            </div>
+
+            <section class="chat-interface" hidden>
+                <header class="messages-chat-header">
+                    <img 
+                        class="chat-avatar"
+                        src="/static/assets/avatars/default-user.webp"
+                        alt="">
+                    <span class="chat-username">Username</span>
+                </header>
+                <div class="messages-container">
+                    <div class="messages-list">
+                        <!-- Messages will be rendered here -->
+                    </div>
+                </div>
+                <form class="message-form">
+                    <input 
+                        class="message-input"
+                        type="text"
+                        placeholder="Write a message..."
+                        autocomplete="off">
+                    <button type="submit" class="send-message-button">Send</button>
+                </form>
+            </section>
+        </main>
+    </div>
 </div>
 
 <script type="module" src="/static/js/chats/index.js"></script>

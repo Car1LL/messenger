@@ -174,6 +174,7 @@ async def create_new_chat(
 @router.get("/api/chats/{chat_id}/messages")
 async def get_chat_messages(
     chat_id: int,
+    before_id: int | None = None,
     current_user: UserORM = Depends(get_current_user),
     session: AsyncSession = Depends(get_session)
 ):
@@ -197,11 +198,39 @@ async def get_chat_messages(
             }
         )
 
-    messages_stmt = select(MessageORM) \
-        .order_by(MessageORM.created_at) \
-        .where(MessageORM.chat_id == chat.id)
+    messages_stmt = select(MessageORM).where(MessageORM.chat_id == chat.id)
+
+    if before_id is not None:
+        cursor_stmt = select(MessageORM) \
+            .where(MessageORM.id == before_id, MessageORM.chat_id == chat.id)
+
+        cursor_results = await session.execute(cursor_stmt)
+        cursor_message = cursor_results.scalar_one_or_none()
+
+        if cursor_message is None:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "error": "not_found",
+                    "message": "Message cursor not found"
+                }
+            )
+
+        messages_stmt = messages_stmt.where(
+            or_(
+                MessageORM.created_at < cursor_message.created_at,
+                and_(
+                    MessageORM.created_at == cursor_message.created_at,
+                    MessageORM.id < cursor_message.id
+                )
+            )
+        )
+
+    messages_stmt = messages_stmt.order_by(MessageORM.created_at.desc(), MessageORM.id.desc()) \
+        .limit(50)
+
     messages = await session.scalars(messages_stmt)
-    messages = messages.all()
+    messages = list(reversed(messages.all()))
 
     return [
         {
@@ -212,6 +241,13 @@ async def get_chat_messages(
         } for message in messages
     ]
 
+@router.get("/api/users/me/")
+async def get_me(
+    current_user: UserORM = Depends(get_current_user)
+):
+    return {
+        "user_id": current_user.id
+    }
 
 # Websocket 
 @router.websocket("/chats/ws/")

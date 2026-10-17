@@ -1,32 +1,6 @@
 import { apiFetch } from "../global.js";
 import dom from "./dom.js";
-
-// dom.sidebarSearch.addEventListener("input", async (event) => {
-//     dom.searchResults.replaceChildren();
-
-//     const username = encodeURIComponent(event.target.value.trim());
-
-//     if (!username) {
-//         dom.searchResults.hidden = true;
-//         dom.chatList.hidden = false;
-//         dom.searchResults.replaceChildren();
-//         return;
-//     }
-
-//     dom.chatList.hidden = true;
-//     dom.searchResults.hidden = false;
-//     dom.searchResults.replaceChildren();
-
-//     const response = await apiFetch(`/api/users/search/?username=${username}`);
-
-//     if (response.status !== 200) {
-//         return response;
-//     }
-//     const user = await response.json();
-//     createSearchElement(user);
-
-//     console.log(response);
-// });
+import { openChat } from "./chat-navigation.js";
 
 function createSearchElement(user) {
     const searchElement = document.createElement("div");
@@ -43,6 +17,33 @@ function createSearchElement(user) {
     searchElement.append(userAvatar, username);
     dom.searchResults.append(searchElement);
 
+    searchElement.addEventListener("click", () => handleSearchClick(user));
+}
+
+async function handleSearchClick(user) {
+    try {
+        const response = await apiFetch(`/api/chats/?target_user_id=${user.user_id}`, {
+            method: "POST"
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail?.message || "Failed to open chat");
+        }
+
+        const data = await response.json();
+
+        const chat = {
+            chat_id: data.chat_id,
+            recipient_avatar_path: user.avatar_path,
+            recipient_username: user.username
+        };
+
+        openChat(chat);
+
+    } catch (error) {
+        console.error("Failed to open chat:", error);
+    }
 }
 
 // 

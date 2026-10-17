@@ -1,5 +1,6 @@
 import dom from "./dom.js";
 import { apiFetch } from "../global.js";
+import { openChat } from "./chat-navigation.js";
 
 
 async function getChats() {
@@ -62,6 +63,10 @@ function createChatElement(chat) {
     recipientUsername.textContent = chat.recipient_username;
     latestMessageContent.textContent = chat.latest_message_content;
     latestMessageAt.textContent = formatChatDate(chat.latest_message_at);
+
+    chatElement.addEventListener("click", () => {
+        openChat(chat);
+    })
 
     return chatElement;
 }
